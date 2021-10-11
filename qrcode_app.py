@@ -1,7 +1,11 @@
 import sys
-from PyQt5 import QtCore, QtGui, QtWidgets, uic
+from PyQt5 import QtWidgets, uic
+from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtGui import QPixmap
 import qrcode
-
+from PIL import Image
+from pyzbar.pyzbar import decode
+# TODO: Converter imagens (possivelmente precisa de servidor)
 qtCreatorFile = "mainwindow.ui"  # Enter file here.
 Ui_MainWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)
 
@@ -11,6 +15,18 @@ class MyWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         QtWidgets.QMainWindow.__init__(self)
         Ui_MainWindow.__init__(self)
         self.setupUi(self)
+        self.toolButton_read_QR.clicked.connect(self.read_QR)
+
+    def read_QR(self):
+        qr_path, _ = QFileDialog.getOpenFileName(self,
+                                                 'Ler QRCode',
+                                                 'c:\\',
+                                                 "Image files (*.jpg *.png)")
+        pixmap = QPixmap(qr_path)
+        self.label_read_QR.setPixmap(pixmap)
+        qr = decode(Image.open(qr_path))
+        print(qr)
+        self.textEdit.setText(qr[0][0].decode('utf-8', 'ignore'))
 
     def create_QR(self):
         qr = qrcode.QRCode(
